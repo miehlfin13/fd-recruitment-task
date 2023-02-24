@@ -28,5 +28,7 @@ public class TodoItem : BaseAuditableEntity
     }
     public Colour Colour { get; set; } = Colour.White;
 
+    public IList<TodoItemTag> Tags { get; set; } = new List<TodoItemTag>();
+
     public TodoList List { get; set; } = null!;
 }
