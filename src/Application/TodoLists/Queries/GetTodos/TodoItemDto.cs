@@ -25,6 +25,8 @@ public class TodoItemDto : IMapFrom<TodoItem>
 
     public string? Colour { get; set; }
 
+    public DateTime? Deleted { get; set; }
+
     public IList<TodoItemTagDto> Tags { get; set; }
 
     public void Mapping(Profile profile)

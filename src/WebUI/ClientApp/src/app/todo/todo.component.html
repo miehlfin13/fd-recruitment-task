@@ -108,6 +108,9 @@
       <div class="float-start">
         <button class="btn btn-default text-danger" (click)="confirmDeleteList(deleteListModalTemplate)">Delete</button>
       </div>
+      <div class="float-start">
+        <button class="btn btn-default text-danger" (click)="confirmDeleteList(deleteListModalTemplate, true)">Soft Delete</button>
+      </div>
       <div class="float-end">
         <button class="btn btn-default" (click)="listOptionsModalRef.hide()">Cancel</button>
         <button class="btn btn-primary" (click)="updateListOptions()">Update</button>
@@ -195,6 +198,9 @@
       <div class="float-start">
         <button class="btn btn-default text-danger" (click)="deleteItem(selectedItem, true)">{{deleting ? 'Deleting ' + deleteCountDown + ' ...' : 'Delete'}}</button>
       </div>
+      <div class="float-start">
+        <button class="btn btn-default text-danger" (click)="deleteItem(selectedItem, true, true)">{{deleting ? 'Deleting ' + deleteCountDown + ' ...' : 'Soft Delete'}}</button>
+      </div>
       <div class="float-end">
         <button class="btn btn-default" (click)="itemDetailsModalRef.hide()">Cancel</button>
         <button class="btn btn-primary" (click)="updateItemDetails()">Update</button>
@@ -211,7 +217,8 @@
     </button>
   </div>
   <div class="modal-body">
-    <p>All items will be permanently deleted. </p>
+    <p *ngIf="softDeleteList">All items will be soft deleted. </p>
+    <p *ngIf="!softDeleteList">All items will be permanently deleted. </p>
     <div *ngIf="debug">
       <pre>{{ selectedList | json }}</pre>
     </div>
