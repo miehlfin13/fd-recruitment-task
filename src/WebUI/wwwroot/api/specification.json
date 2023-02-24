@@ -6,6 +6,29 @@
     "version": "1.0.0"
   },
   "paths": {
+    "/api/Colour/Supported": {
+      "get": {
+        "tags": [
+          "Colour"
+        ],
+        "operationId": "Colour_GetSupported",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SupportedColour"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/TodoItems": {
       "get": {
         "tags": [
@@ -390,6 +413,18 @@
   },
   "components": {
     "schemas": {
+      "SupportedColour": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          }
+        }
+      },
       "PaginatedListOfTodoItemBriefDto": {
         "type": "object",
         "additionalProperties": false,
@@ -488,6 +523,10 @@
             "$ref": "#/components/schemas/PriorityLevel"
           },
           "note": {
+            "type": "string",
+            "nullable": true
+          },
+          "colour": {
             "type": "string",
             "nullable": true
           }
@@ -589,6 +628,10 @@
             "format": "int32"
           },
           "note": {
+            "type": "string",
+            "nullable": true
+          },
+          "colour": {
             "type": "string",
             "nullable": true
           }

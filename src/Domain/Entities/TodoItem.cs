@@ -26,6 +26,7 @@ public class TodoItem : BaseAuditableEntity
             _done = value;
         }
     }
+    public Colour Colour { get; set; } = Colour.White;
 
     public TodoList List { get; set; } = null!;
 }

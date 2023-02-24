@@ -5,7 +5,7 @@ import {
   TodoListsClient, TodoItemsClient,
   TodoListDto, TodoItemDto, PriorityLevelDto,
   CreateTodoListCommand, UpdateTodoListCommand,
-  CreateTodoItemCommand, UpdateTodoItemDetailCommand
+  CreateTodoItemCommand, UpdateTodoItemDetailCommand, ColourClient, SupportedColour
 } from '../web-api-client';
 
 @Component({
@@ -32,13 +32,15 @@ export class TodoComponent implements OnInit {
     id: [null],
     listId: [null],
     priority: [''],
-    note: ['']
+    note: [''],
+    colour: ['']
   });
-
+  supportedColours: SupportedColour[];
 
   constructor(
     private listsClient: TodoListsClient,
     private itemsClient: TodoItemsClient,
+    private colourClient: ColourClient,
     private modalService: BsModalService,
     private fb: FormBuilder
   ) { }
@@ -47,10 +49,19 @@ export class TodoComponent implements OnInit {
     this.listsClient.get().subscribe(
       result => {
         this.lists = result.lists;
+        console.log(this.lists);
         this.priorityLevels = result.priorityLevels;
         if (this.lists.length) {
           this.selectedList = this.lists[0];
         }
+      },
+      error => console.error(error)
+    );
+
+    this.colourClient.getSupported().subscribe(
+      result => {
+        this.supportedColours = result;
+        console.log(this.supportedColours);
       },
       error => console.error(error)
     );
@@ -163,6 +174,7 @@ export class TodoComponent implements OnInit {
 
         this.selectedItem.priority = item.priority;
         this.selectedItem.note = item.note;
+        this.selectedItem.colour = item.colour;
         this.itemDetailsModalRef.hide();
         this.itemDetailsFormGroup.reset();
       },
