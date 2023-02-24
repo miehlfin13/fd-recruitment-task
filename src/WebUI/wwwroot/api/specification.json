@@ -229,6 +229,39 @@
         }
       }
     },
+    "/api/TodoItems/Soft/{id}": {
+      "delete": {
+        "tags": [
+          "TodoItems"
+        ],
+        "operationId": "TodoItems_SoftDelete",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/TodoItemTagTags": {
       "post": {
         "tags": [
@@ -496,6 +529,39 @@
         }
       }
     },
+    "/api/TodoLists/Soft/{id}": {
+      "delete": {
+        "tags": [
+          "TodoLists"
+        ],
+        "operationId": "TodoLists_SoftDelete",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/WeatherForecast": {
       "get": {
         "tags": [
@@ -733,6 +799,11 @@
             "type": "string",
             "nullable": true
           },
+          "deleted": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
           "items": {
             "type": "array",
             "items": {
@@ -770,6 +841,11 @@
           },
           "colour": {
             "type": "string",
+            "nullable": true
+          },
+          "deleted": {
+            "type": "string",
+            "format": "date-time",
             "nullable": true
           },
           "tags": {

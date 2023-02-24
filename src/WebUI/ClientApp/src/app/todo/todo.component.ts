@@ -44,6 +44,7 @@ export class TodoComponent implements OnInit {
   supportedColours: SupportedColour[];
   tagFilter: string = '';
   textFilter: string = '';
+  softDeleteList = true;
 
   constructor(
     private listsClient: TodoListsClient,
@@ -58,7 +59,6 @@ export class TodoComponent implements OnInit {
     this.listsClient.get().subscribe(
       result => {
         this.lists = result.lists;
-        console.log(this.lists);
         this.priorityLevels = result.priorityLevels;
         if (this.lists.length) {
           this.selectedList = this.lists[0];
@@ -138,13 +138,15 @@ export class TodoComponent implements OnInit {
     );
   }
 
-  confirmDeleteList(template: TemplateRef<any>) {
+  confirmDeleteList(template: TemplateRef<any>, isSoftDelete = false) {
+    this.softDeleteList = isSoftDelete;
     this.listOptionsModalRef.hide();
     this.deleteListModalRef = this.modalService.show(template);
   }
 
   deleteListConfirmed(): void {
-    this.listsClient.delete(this.selectedList.id).subscribe(
+    const deleteApi = this.softDeleteList ? this.listsClient.softDelete(this.selectedList.id) : this.listsClient.delete(this.selectedList.id);
+    deleteApi.subscribe(
       () => {
         this.deleteListModalRef.hide();
         this.lists = this.lists.filter(t => t.id !== this.selectedList.id);
@@ -293,7 +295,7 @@ export class TodoComponent implements OnInit {
     }
   }
 
-  deleteItem(item: TodoItemDto, countDown?: boolean) {
+  deleteItem(item: TodoItemDto, countDown?: boolean, isSoftDelete = false) {
     if (countDown) {
       if (this.deleting) {
         this.stopDeleteCountDown();
@@ -303,7 +305,7 @@ export class TodoComponent implements OnInit {
       this.deleting = true;
       this.deleteCountDownInterval = setInterval(() => {
         if (this.deleting && --this.deleteCountDown <= 0) {
-          this.deleteItem(item, false);
+          this.deleteItem(item, false, isSoftDelete);
         }
       }, 1000);
       return;
@@ -317,7 +319,8 @@ export class TodoComponent implements OnInit {
       const itemIndex = this.selectedList.items.indexOf(this.selectedItem);
       this.selectedList.items.splice(itemIndex, 1);
     } else {
-      this.itemsClient.delete(item.id).subscribe(
+      const deleteApi = isSoftDelete ? this.itemsClient.softDelete(item.id) : this.itemsClient.delete(item.id);
+      deleteApi.subscribe(
         () =>
         (this.selectedList.items = this.selectedList.items.filter(
           t => t.id !== item.id
