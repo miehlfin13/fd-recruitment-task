@@ -5,7 +5,7 @@ import {
   TodoListsClient, TodoItemsClient,
   TodoListDto, TodoItemDto, PriorityLevelDto,
   CreateTodoListCommand, UpdateTodoListCommand,
-  CreateTodoItemCommand, UpdateTodoItemDetailCommand, ColourClient, SupportedColour
+  CreateTodoItemCommand, UpdateTodoItemDetailCommand, ColourClient, SupportedColour, TodoItemTagDto, TodoItemTagTagsClient
 } from '../web-api-client';
 
 @Component({
@@ -22,6 +22,7 @@ export class TodoComponent implements OnInit {
   priorityLevels: PriorityLevelDto[];
   selectedList: TodoListDto;
   selectedItem: TodoItemDto;
+  selectedTag: TodoItemTagDto;
   newListEditor: any = {};
   listOptionsEditor: any = {};
   newListModalRef: BsModalRef;
@@ -35,11 +36,19 @@ export class TodoComponent implements OnInit {
     note: [''],
     colour: ['']
   });
+  itemTagsModalRef: BsModalRef;
+  itemTagsFormGroup = this.fb.group({
+    id: [null],
+    tags: []
+  });
   supportedColours: SupportedColour[];
+  tagFilter: string = '';
+  textFilter: string = '';
 
   constructor(
     private listsClient: TodoListsClient,
     private itemsClient: TodoItemsClient,
+    private tagClient: TodoItemTagTagsClient,
     private colourClient: ColourClient,
     private modalService: BsModalService,
     private fb: FormBuilder
@@ -61,7 +70,6 @@ export class TodoComponent implements OnInit {
     this.colourClient.getSupported().subscribe(
       result => {
         this.supportedColours = result;
-        console.log(this.supportedColours);
       },
       error => console.error(error)
     );
@@ -157,6 +165,16 @@ export class TodoComponent implements OnInit {
     });
   }
 
+  showItemTagsModal(template: TemplateRef<any>, item: TodoItemDto): void {
+    this.selectedItem = item;
+    this.itemTagsFormGroup.patchValue(this.selectedItem);
+    
+    this.itemTagsModalRef = this.modalService.show(template);
+    this.itemTagsModalRef.onHidden.subscribe(() => {
+      this.stopDeleteCountDown();
+    });
+  }
+
   updateItemDetails(): void {
     const item = new UpdateTodoItemDetailCommand(this.itemDetailsFormGroup.value);
     this.itemsClient.updateItemDetails(this.selectedItem.id, item).subscribe(
@@ -180,6 +198,47 @@ export class TodoComponent implements OnInit {
       },
       error => console.error(error)
     );
+  }
+
+  addTag() {
+    const tag = {
+      id: 0,
+      itemId: this.selectedItem.id,
+      description: ''
+    } as TodoItemTagDto;
+
+    this.selectedItem.tags.push(tag);
+    setTimeout(() => document.getElementById('newTag').focus(), 100);
+  }
+
+  updateTag(tag: TodoItemTagDto, pressedEnter: boolean = false) {
+    if (!pressedEnter || !tag.description.trim()) {
+      this.deleteTag(tag);
+      return;
+    }
+
+    this.tagClient
+      .create({
+        ...tag
+      } as CreateTodoItemCommand)
+      .subscribe(
+        result => {
+          tag.id = result;
+        },
+        error => console.error(error)
+      );
+  }
+
+  deleteTag(tag: TodoItemTagDto) {
+    const tagIndex = this.selectedItem.tags.indexOf(this.selectedItem.tags.find(t => t.id == tag.id));
+    if (tag.id === 0) {
+      this.selectedItem.tags.splice(tagIndex, 1);
+    } else {
+      this.tagClient.delete(tag.id).subscribe(
+        () => this.selectedItem.tags.splice(tagIndex, 1),
+        error => console.error(error)
+      );
+    }
   }
 
   addItem() {
@@ -272,5 +331,29 @@ export class TodoComponent implements OnInit {
     clearInterval(this.deleteCountDownInterval);
     this.deleteCountDown = 0;
     this.deleting = false;
+  }
+
+  joinTags(tags: any[]) {
+    let result = '';
+    tags.forEach(tag => {
+      result += `${tag['description']}\r\n`;
+    })
+    return result;
+  }
+
+  hasTag(item: TodoItemDto) {
+    if (this.tagFilter.trim() == '') {
+      return true;
+    } else {
+      return item.tags.find(t => t.description.includes(this.tagFilter)) != undefined;
+    }
+  }
+
+  hasText(item: TodoItemDto) {
+    if (this.textFilter.trim() == '') {
+      return true;
+    } else {
+      return item.tags.find(t => t.description.includes(this.textFilter)) != undefined;
+    }
   }
 }
